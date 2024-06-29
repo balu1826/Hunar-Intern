@@ -1,0 +1,59 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sbs
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+df=pd.read_csv('house price data.csv')
+
+
+#Changing the string format into number format as machine can only understand the numbers
+label_encoder=LabelEncoder()
+df['city_encode']=label_encoder.fit_transform(df['city'])
+df['street_encode']=label_encoder.fit_transform(df['street'])
+df['statezip_encode']=label_encoder.fit_transform(df['statezip'])
+df=df.drop(['city','country','date','street','statezip'],axis=1)
+
+#Assigning training data and testing data
+x=df.drop(columns='price',axis=1)
+y=df['price']
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.1,random_state=2)
+
+
+#Model Training
+lin_reg_model=LinearRegression()#loading the linear regression
+lin_reg_model.fit(x_train,y_train)
+
+
+#Model Evalution
+training_data_prediction=lin_reg_model.predict(x_train)
+
+
+#Checking the accuracy of traing prediction using r squared error
+error_score=metrics.r2_score(y_train,training_data_prediction)
+print("Error score:",error_score)
+
+
+#Visualizing the actual and prediction price
+plt.scatter(y_train,training_data_prediction)
+plt.xlabel("Actual Price")
+plt.ylabel("Prediction Price")
+plt.title("Actual Price VS Prediction Price")
+plt.show()
+
+
+#Predictoin on trainig data
+test_data_prediction=lin_reg_model.predict(x_test)
+
+
+#Checking the accuaracy of testing predictions 
+error_score_testing=metrics.r2_score(y_test,test_data_prediction)
+print("Error score of testing prediction:",error_score_testing)
+
+#Visualizing the actual price and prediction price
+plt.scatter(y_test,test_data_prediction)
+plt.xlabel("Actual Price")
+plt.ylabel("Prediction Price")
+plt.title("Actual Price VS Prediction Price")
+plt.show()
