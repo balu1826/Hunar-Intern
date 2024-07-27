@@ -1,0 +1,25 @@
+import pandas as pd
+df=pd.read_csv('food_coded.csv')
+#initial shape of the data set
+print("shape of the data set is:",df.shape)
+print("Missing values ","-"*25,sep=" ")
+print(df.isnull().sum())
+#seperating numeric and non numeric columns 
+numeric_cols=df.select_dtypes(include=['number']).columns
+non_numeric_cols=df.select_dtypes(exclude=['number']).columns
+#applying mean and median on numeric columns and mode on non numeric coulmns
+df[numeric_cols]=df[numeric_cols].fillna(df[numeric_cols].mean())
+df[numeric_cols]=df[numeric_cols].fillna(df[numeric_cols].median())
+for col in non_numeric_cols:
+    df[col] = df[col].fillna(df[col].mode().iloc[0])
+#droping duplicate columns
+no_duplicate_cols=df.drop_duplicates()
+#transposing rows into columns to drop the duplicate rows
+transposed=no_duplicate_cols.T
+#droping original duplicate rows
+no_duplicate_rows=transposed.drop_duplicates()
+#back to original column
+back_to_normal=no_duplicate_rows.T
+back_to_normal.isnull().sum()
+#converting into excel file
+back_to_normal.to_excel('clean_food_coded.xlsx', index=False)
