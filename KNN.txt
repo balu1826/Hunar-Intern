@@ -1,0 +1,58 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
+
+df=pd.read_csv('breast cancer.csv')
+
+#Encoding string format column into numbers
+labelencoder=LabelEncoder()
+df['diagnosis_encode']=labelencoder.fit_transform(df['diagnosis'])
+
+
+
+#Splitting the data into training and testing datasets
+df.drop(columns='diagnosis',inplace=True)
+x=df.drop(columns='diagnosis_encode',axis=True)
+y=df['diagnosis_encode']
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.1,random_state=2)
+
+
+#Featurescaling
+sc_x=StandardScaler()
+x_train=sc_x.fit_transform(x_train)
+x_test=sc_x.fit_transform(x_test)
+
+
+#Define the model
+classifier=KNeighborsClassifier(n_neighbors=11,p=2,metric='euclidean') #sqrt(len(y_test))==12.43 and 11 is taken as it is odd 
+
+#Fit the train data into model
+classifier.fit(x_train,y_train)
+
+
+#Predict the dataset 
+y_pred=classifier.predict(x_test)
+y_pred
+
+
+#Evalute the model
+cm=confusion_matrix(y_test,y_pred)
+print(cm)
+print(f1_score(y_test,y_pred))
+print(accuracy_score(y_test,y_pred))
+
+
+#TESTING THE MODEL WITH NEW DATASET
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+testing_data=pd.read_csv('wisc_bc_data.csv')
+testing_data.drop(columns='diagnosis',inplace=True)
+x_testing_data=sc_x.transform(testing_data)
+y_test_pred=classifier.predict(x_testing_data)
+testing_data['predictions']=y_test_pred#M as 1 and B as 0
+testing_data
